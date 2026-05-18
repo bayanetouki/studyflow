@@ -97,3 +97,4 @@ class ChangePasswordView(APIView):
             request.user.save()
             return Response({"message": "Mot de passe changé avec succès."})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 

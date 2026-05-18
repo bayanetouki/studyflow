@@ -25,3 +25,4 @@ class User(AbstractUser):
     @property
     def full_name(self):
         return self.name or self.get_full_name() or self.email.split('@')[0]
+ 

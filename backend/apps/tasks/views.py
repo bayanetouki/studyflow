@@ -165,3 +165,4 @@ class CalendarEventDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return CalendarEvent.objects.filter(user=self.request.user)
+ 

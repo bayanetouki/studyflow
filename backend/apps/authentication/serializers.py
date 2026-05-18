@@ -67,3 +67,4 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['name', 'bio', 'avatar']
+ 

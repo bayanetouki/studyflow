@@ -163,3 +163,4 @@ class TestProfile:
         url = reverse('auth-profile')
         response = api_client.get(url)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+ 

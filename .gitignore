@@ -1,0 +1,23 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+db.sqlite3
+/backend/media/
+/backend/staticfiles/
+
+# Node / React
+node_modules/
+/frontend/dist/
+/frontend/.env.local
+/frontend/.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# Tests
+.coverage
+htmlcov/
+.pytest_cache/

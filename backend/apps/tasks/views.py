@@ -1,3 +1,4 @@
+# Tasks API - TOUKI Bayane - PFA Génie Logiciel
 """
 Views pour la gestion des tâches - StudyFlow
 """
@@ -165,3 +166,4 @@ class CalendarEventDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return CalendarEvent.objects.filter(user=self.request.user)
+ 

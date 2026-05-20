@@ -12,3 +12,4 @@ urlpatterns = [
     path('api/v1/collaboration/', include('apps.collaboration.urls')),
     path('api/v1/progress/', include('apps.progress.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

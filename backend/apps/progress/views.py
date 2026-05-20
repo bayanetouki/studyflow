@@ -85,3 +85,4 @@ class DailyProgressListView(generics.ListAPIView):
 
     def get_queryset(self):
         return DailyProgress.objects.filter(user=self.request.user)[:30]
+ 

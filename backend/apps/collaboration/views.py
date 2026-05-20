@@ -122,3 +122,4 @@ class MessageListCreateView(generics.ListCreateAPIView):
         if team_id:
             qs = qs.filter(team_id=team_id)
         return qs
+ 

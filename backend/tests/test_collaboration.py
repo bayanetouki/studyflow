@@ -145,3 +145,4 @@ class TestSharedTask:
         url = reverse('shared-task-progress', kwargs={'pk': task.pk})
         response = auth_client.patch(url, {'progress': 150})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+ 

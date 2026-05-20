@@ -85,4 +85,3 @@ class MessageSerializer(serializers.ModelSerializer):
 class JoinTeamSerializer(serializers.Serializer):
     """Rejoindre une équipe via code d'invitation."""
     invitation_code = serializers.CharField(max_length=20)
- 

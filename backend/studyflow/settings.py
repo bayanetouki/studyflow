@@ -17,11 +17,18 @@ env = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-dev-key-change-in-production-!!')
+SECRET_KEY = env(
+    'SECRET_KEY',
+    default='django-insecure-dev-key-change-in-production-!!')
 
 DEBUG = env('DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '0.0.0.0'])
+ALLOWED_HOSTS = env.list(
+    'ALLOWED_HOSTS',
+    default=[
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -35,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    #'drf_spectacular',
+    # 'drf_spectacular',
     # Local apps
     'apps.authentication',
     'apps.tasks',

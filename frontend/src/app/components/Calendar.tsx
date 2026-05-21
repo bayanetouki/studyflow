@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Event {

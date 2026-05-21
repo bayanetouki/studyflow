@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, UserPlus, Users, Send, CheckCircle, Clock, QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 

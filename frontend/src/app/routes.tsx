@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { Login } from "./components/Login";
 import { Dashboard } from "./components/Dashboard";
 import { Calendar } from "./components/Calendar";

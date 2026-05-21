@@ -149,7 +149,9 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     'http://localhost:3000',
     'https://studyflow-xagp.vercel.app',
 ])
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
+
 
 # ─────────────────────────────────────────────
 # API DOCUMENTATION (drf-spectacular)

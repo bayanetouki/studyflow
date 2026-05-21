@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, Pause, RotateCcw, Coffee } from "lucide-react";
 
 type TimerMethod = "pomodoro" | "52-17" | "deepwork" | "custom";

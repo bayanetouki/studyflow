@@ -13,14 +13,27 @@ class UserSerializer(serializers.ModelSerializer):
     """Sérialiseur pour afficher les infos utilisateur."""
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'username', 'avatar', 'bio', 'created_at']
+        fields = [
+            'id',
+            'email',
+            'name',
+            'username',
+            'avatar',
+            'bio',
+            'created_at']
         read_only_fields = ['id', 'created_at']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     """Sérialiseur pour l'inscription."""
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True, label='Confirmer mot de passe')
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password])
+    password2 = serializers.CharField(
+        write_only=True,
+        required=True,
+        label='Confirmer mot de passe')
 
     class Meta:
         model = User
@@ -28,7 +41,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Les mots de passe ne correspondent pas."})
+            raise serializers.ValidationError(
+                {"password": "Les mots de passe ne correspondent pas."})
         return attrs
 
     def create(self, validated_data):
@@ -44,6 +58,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """JWT avec infos utilisateur incluses dans la réponse."""
+
     def validate(self, attrs):
         data = super().validate(attrs)
         data['user'] = UserSerializer(self.user).data
@@ -53,7 +68,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     """Changer le mot de passe."""
     old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True, validators=[validate_password])
+    new_password = serializers.CharField(
+        required=True, validators=[validate_password])
 
     def validate_old_password(self, value):
         user = self.context['request'].user
@@ -67,4 +83,3 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['name', 'bio', 'avatar']
- 

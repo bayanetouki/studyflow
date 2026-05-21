@@ -44,8 +44,13 @@ class TeamMembership(models.Model):
         ('member', 'Membre'),
     ]
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='member')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default='member')
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -65,7 +70,10 @@ class SharedTask(models.Model):
         ('medium', 'Moyenne'),
         ('low', 'Faible'),
     ]
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='shared_tasks')
+    team = models.ForeignKey(
+        Team,
+        on_delete=models.CASCADE,
+        related_name='shared_tasks')
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -78,8 +86,12 @@ class SharedTask(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
-    progress = models.PositiveIntegerField(default=0, help_text="Pourcentage 0-100")
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='medium')
+    progress = models.PositiveIntegerField(
+        default=0, help_text="Pourcentage 0-100")
     due_date = models.DateField(null=True, blank=True)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -96,7 +108,10 @@ class SharedTask(models.Model):
 
 class Message(models.Model):
     """Message dans le chat d'équipe."""
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='messages')
+    team = models.ForeignKey(
+        Team,
+        on_delete=models.CASCADE,
+        related_name='messages')
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -112,4 +127,3 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender.email}: {self.content[:50]}"
- 

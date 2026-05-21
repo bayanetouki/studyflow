@@ -51,14 +51,17 @@ class JoinTeamView(APIView):
         team = get_object_or_404(Team, invitation_code=code.upper())
 
         # Vérifier si déjà membre
-        if TeamMembership.objects.filter(team=team, user=request.user).exists():
+        if TeamMembership.objects.filter(
+                team=team, user=request.user).exists():
             return Response(
                 {"error": "Vous êtes déjà membre de cette équipe."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        TeamMembership.objects.create(team=team, user=request.user, role='member')
-        return Response(TeamSerializer(team, context={'request': request}).data)
+        TeamMembership.objects.create(
+            team=team, user=request.user, role='member')
+        return Response(TeamSerializer(
+            team, context={'request': request}).data)
 
 
 class SharedTaskListCreateView(generics.ListCreateAPIView):
@@ -100,7 +103,8 @@ class SharedTaskProgressView(APIView):
         task = get_object_or_404(SharedTask, pk=pk, team__members=request.user)
         progress = request.data.get('progress', 0)
         if not (0 <= int(progress) <= 100):
-            return Response({"error": "La progression doit être entre 0 et 100."}, status=400)
+            return Response(
+                {"error": "La progression doit être entre 0 et 100."}, status=400)
         task.progress = progress
         if int(progress) == 100:
             task.completed = True
@@ -122,4 +126,3 @@ class MessageListCreateView(generics.ListCreateAPIView):
         if team_id:
             qs = qs.filter(team_id=team_id)
         return qs
- 

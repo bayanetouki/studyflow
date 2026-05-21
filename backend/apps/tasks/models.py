@@ -27,14 +27,20 @@ class Task(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='medium')
     completed = models.BooleanField(default=False)
     due_date = models.DateField(null=True, blank=True)
     estimated_time = models.PositiveIntegerField(
         null=True, blank=True,
         help_text="Temps estimé en minutes"
     )
-    view_mode = models.CharField(max_length=10, choices=VIEW_MODE_CHOICES, default='daily')
+    view_mode = models.CharField(
+        max_length=10,
+        choices=VIEW_MODE_CHOICES,
+        default='daily')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -106,4 +112,3 @@ class CalendarEvent(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.title}"
- 

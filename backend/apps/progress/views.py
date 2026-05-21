@@ -35,7 +35,9 @@ class ProgressSummaryView(APIView):
         # Stats semaine
         weekly_tasks = tasks.filter(updated_at__date__gte=week_ago)
         weekly_completed = weekly_tasks.filter(completed=True).count()
-        weekly_sessions = sessions.filter(started_at__date__gte=week_ago, completed=True).count()
+        weekly_sessions = sessions.filter(
+            started_at__date__gte=week_ago,
+            completed=True).count()
         weekly_time = sum(s.duration_minutes for s in sessions.filter(
             started_at__date__gte=week_ago, completed=True
         ))
@@ -85,4 +87,3 @@ class DailyProgressListView(generics.ListAPIView):
 
     def get_queryset(self):
         return DailyProgress.objects.filter(user=self.request.user)[:30]
- 

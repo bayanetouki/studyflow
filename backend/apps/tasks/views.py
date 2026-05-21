@@ -2,17 +2,17 @@
 """
 Views pour la gestion des tâches - StudyFlow
 """
-from rest_framework import generics, status, permissions, filters
+from rest_framework import generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from .models import Task, PomodoroSession, CalendarEvent
 from .serializers import (
-    TaskSerializer, TaskToggleSerializer,
-    PomodoroSessionSerializer, CalendarEventSerializer
+    TaskSerializer,
+    PomodoroSessionSerializer,
+    CalendarEventSerializer
 )
 
 
@@ -20,7 +20,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
     """
     GET  /api/v1/tasks/          → Lister les tâches de l'utilisateur
     POST /api/v1/tasks/          → Créer une nouvelle tâche
-    
+
     Filtres disponibles : ?priority=high&completed=false&view_mode=daily
     """
     serializer_class = TaskSerializer
@@ -92,7 +92,9 @@ class TaskStatsView(APIView):
         low = tasks.filter(priority='low').count()
 
         # Temps estimé total
-        total_time = sum(t.estimated_time or 0 for t in tasks.filter(completed=True))
+        total_time = sum(
+            t.estimated_time or 0 for t in tasks.filter(
+                completed=True))
 
         return Response({
             'total': total,
@@ -153,7 +155,9 @@ class CalendarEventListCreateView(generics.ListCreateAPIView):
         year = self.request.query_params.get('year')
         month = self.request.query_params.get('month')
         if year and month:
-            qs = qs.filter(start_datetime__year=year, start_datetime__month=month)
+            qs = qs.filter(
+                start_datetime__year=year,
+                start_datetime__month=month)
         return qs
 
 
@@ -166,4 +170,3 @@ class CalendarEventDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return CalendarEvent.objects.filter(user=self.request.user)
- 

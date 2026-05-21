@@ -34,7 +34,9 @@ class DailyProgress(models.Model):
         if self.tasks_total == 0:
             return 0
         completion_rate = (self.tasks_completed / self.tasks_total) * 100
-        time_bonus = min(self.study_time_minutes / 120, 1) * 20  # Max 20 bonus points
-        self.productivity_score = min(round(completion_rate + time_bonus, 1), 100)
+        time_bonus = min(
+            self.study_time_minutes / 120,
+            1) * 20  # Max 20 bonus points
+        self.productivity_score = min(
+            round(completion_rate + time_bonus, 1), 100)
         return self.productivity_score
- 

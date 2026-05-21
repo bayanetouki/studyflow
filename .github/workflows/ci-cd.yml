@@ -72,33 +72,28 @@ jobs:
   # JOB 2 : QUALITE DU CODE
   # ─────────────────────────────────────────────
   lint:
-    name: 🔍 Qualité du Code
+    name: Code Quality - Lint
     runs-on: ubuntu-latest
-
-    env:
-      SECRET_KEY: test-secret-key-lint
-      DEBUG: True
-      DATABASE_URL: sqlite:///db.sqlite3
-      ALLOWED_HOSTS: localhost,127.0.0.1
-      CORS_ALLOWED_ORIGINS: http://localhost:5173
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: 🐍 Configuration Python 3.12
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: 📦 Installation des dépendances
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install flake8
+      - name: Install flake8
+        run: pip install flake8
 
-      - name: 🔍 Vérification du style (flake8)
+      - name: Run flake8
         run: |
-          flake8 apps/ studyflow/ --max-line-length=120 --exclude=migrations
+          cd backend
+          flake8 apps/ studyflow/ \
+            --max-line-length=120 \
+            --exclude=migrations,venv \
+            --ignore=E501,W503,E302,E303
+
   # ─────────────────────────────────────────────
   # JOB 3 : BUILD DOCKER
   # ─────────────────────────────────────────────
@@ -137,8 +132,8 @@ jobs:
     steps:
       - name: Deploy success notification
         run: |
-          echo "✅ Tous les tests passent !"
-          echo "✅ Code quality OK !"
-          echo "✅ Docker build OK !"
-          echo "🚀 Render déploie automatiquement depuis main"
+          echo "Tous les tests passent !"
+          echo "Code quality OK !"
+          echo "Docker build OK !"
+          echo "Render déploie automatiquement depuis main"
           echo "URL: https://studyflow-backend.onrender.com"

@@ -26,6 +26,12 @@ export function TaskOrganization() {
   const [showAddTask, setShowAddTask] = useState(false);
   const [showPlanning, setShowPlanning] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiPlanning, setAiPlanning] = useState<{
+     tasks: { title: string; description: string; priority: "high" | "medium" | "low"; estimatedTime: number; suggestedTime: string }[];
+     advice: string;
+} | null>(null);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -50,6 +56,120 @@ export function TaskOrganization() {
       setLoading(false);
     }
   };
+  const analyzeSchedule = async () => {
+  if (!uploadedFile) return;
+  setAnalyzing(true);
+
+  try {
+    // Lire le fichier
+    const fileContent = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      if (uploadedFile.type.startsWith("image/")) {
+        reader.readAsDataURL(uploadedFile);
+      } else {
+        reader.readAsText(uploadedFile);
+      }
+    });
+
+    // Appeler l'API Claude
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: uploadedFile.type.startsWith("image/")
+              ? [
+                  {
+                    type: "image",
+                    source: {
+                      type: "base64",
+                      media_type: uploadedFile.type,
+                      data: fileContent.split(",")[1],
+                    },
+                  },
+                  {
+                    type: "text",
+                    text: `Analyse cet emploi du temps et génère un planning de révision optimisé.
+Réponds UNIQUEMENT en JSON valide avec ce format exact:
+{
+  "tasks": [
+    {
+      "title": "Nom de la tâche",
+      "description": "Description courte",
+      "priority": "high",
+      "estimatedTime": 60,
+      "suggestedTime": "09:00"
+    }
+  ],
+  "advice": "Conseil général sur le planning"
+}
+Génère entre 3 et 6 tâches basées sur l'emploi du temps. priority doit être high, medium ou low.`,
+                  },
+                ]
+              : `Analyse cet emploi du temps et génère un planning de révision optimisé.
+Contenu: ${fileContent.substring(0, 2000)}
+
+Réponds UNIQUEMENT en JSON valide avec ce format exact:
+{
+  "tasks": [
+    {
+      "title": "Nom de la tâche",
+      "description": "Description courte",
+      "priority": "high",
+      "estimatedTime": 60,
+      "suggestedTime": "09:00"
+    }
+  ],
+  "advice": "Conseil général sur le planning"
+}
+Génère entre 3 et 6 tâches. priority doit être high, medium ou low.`,
+          },
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    const text = data.content[0].text;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      setAiPlanning(parsed);
+      setShowUploadModal(false);
+      setShowPlanning(true);
+    }
+  } catch (error) {
+    console.error("Erreur analyse:", error);
+    alert("Erreur lors de l'analyse. Réessayez.");
+  } finally {
+    setAnalyzing(false);
+  }
+};
+
+const createTasksFromAI = async () => {
+  if (!aiPlanning) return;
+  try {
+    for (const task of aiPlanning.tasks) {
+      const created = await apiClient.createTask({
+        title: task.title,
+        description: `${task.description} - Heure suggérée: ${task.suggestedTime}`,
+        priority: task.priority,
+        estimated_time: task.estimatedTime,
+        view_mode: viewMode,
+      });
+      setTasks((prev) => [created, ...prev]);
+    }
+    setShowPlanning(false);
+    setAiPlanning(null);
+    alert(`${aiPlanning.tasks.length} tâches créées avec succès !`);
+  } catch (error) {
+    console.error("Erreur création tâches:", error);
+  }
+};
 
   const toggleTask = async (id: number) => {
     try {
@@ -326,69 +446,150 @@ export function TaskOrganization() {
 
       {/* Modal Upload */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-[#E8D5C4]">
-            <h3 className="text-xl font-bold text-[#6B5444] mb-4">📅 Uploader Emploi du Temps</h3>
-            <p className="text-sm text-[#8B7355] mb-6">
-              Importez votre emploi du temps pour générer un planning optimisé.
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-[#E8D5C4]">
+      <h3 className="text-xl font-bold text-[#6B5444] mb-4">
+        📅 Uploader Emploi du Temps
+      </h3>
+      <p className="text-sm text-[#8B7355] mb-6">
+        Importez votre emploi du temps — notre IA va l'analyser et créer automatiquement un planning de révision optimisé !
+      </p>
+
+      {/* Zone de drop */}
+      <label className="block border-2 border-dashed border-[#E8D5C4] rounded-lg p-8 text-center hover:border-[#A0826D] transition-colors cursor-pointer">
+        <FileUp size={48} className="mx-auto text-[#A0826D] mb-3" />
+        {uploadedFile ? (
+          <div>
+            <p className="text-[#6B5444] font-medium">✅ {uploadedFile.name}</p>
+            <p className="text-sm text-[#8B7355] mt-1">
+              {(uploadedFile.size / 1024).toFixed(1)} KB
             </p>
-            <div className="border-2 border-dashed border-[#E8D5C4] rounded-lg p-8 text-center hover:border-[#A0826D] cursor-pointer">
-              <FileUp size={48} className="mx-auto text-[#A0826D] mb-3" />
-              <p className="text-[#6B5444] font-medium mb-1">Cliquez pour télécharger</p>
-              <p className="text-sm text-[#8B7355]">PDF, Image, ou fichier texte</p>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowUploadModal(false)}
-                className="flex-1 px-4 py-2 border border-[#E8D5C4] rounded-lg text-[#8B7355]">
-                Annuler
-              </button>
-              <button onClick={() => { setShowUploadModal(false); setShowPlanning(true); }}
-                className="flex-1 bg-gradient-to-r from-[#A0826D] to-[#D4A574] text-white px-4 py-2 rounded-lg">
-                Analyser & Planifier
-              </button>
-            </div>
           </div>
+        ) : (
+          <div>
+            <p className="text-[#6B5444] font-medium mb-1">
+              Cliquez pour télécharger
+            </p>
+            <p className="text-sm text-[#8B7355]">
+              PDF, Image (JPG, PNG), ou fichier texte
+            </p>
+          </div>
+        )}
+        <input
+          type="file"
+          className="hidden"
+          accept=".pdf,.txt,.png,.jpg,.jpeg,.webp"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) setUploadedFile(file);
+          }}
+        />
+      </label>
+
+      <div className="flex gap-3 mt-6">
+        <button
+          onClick={() => {
+            setShowUploadModal(false);
+            setUploadedFile(null);
+          }}
+          className="flex-1 px-4 py-2 border border-[#E8D5C4] rounded-lg hover:bg-[#F5EBE0] transition-colors text-[#8B7355]"
+        >
+          Annuler
+        </button>
+        <button
+          onClick={analyzeSchedule}
+          disabled={!uploadedFile || analyzing}
+          className="flex-1 bg-gradient-to-r from-[#A0826D] to-[#D4A574] text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {analyzing ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Analyse en cours...
+            </>
+          ) : (
+            <>
+              <Sparkles size={18} />
+              Analyser avec IA
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+      {/* Modal Planning */}
+    {showPlanning && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-[#E8D5C4]">
+      <h3 className="text-2xl font-bold text-[#6B5444] mb-2 flex items-center gap-2">
+        <Sparkles className="text-[#D4A574]" />
+        {aiPlanning ? "Planning généré par IA ✨" : "Planning Optimisé"}
+      </h3>
+
+      {aiPlanning && (
+        <div className="mb-4 p-3 bg-[#F5EBE0] rounded-lg border border-[#E8D5C4]">
+          <p className="text-sm text-[#6B5444]">
+            💡 <strong>Conseil IA :</strong> {aiPlanning.advice}
+          </p>
         </div>
       )}
 
-      {/* Modal Planning */}
-      {showPlanning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-[#E8D5C4]">
-            <h3 className="text-2xl font-bold text-[#6B5444] mb-4 flex items-center gap-2">
-              <Sparkles className="text-[#D4A574]" /> Planning Optimisé
-            </h3>
-            <div className="space-y-4">
-              {incompleteTasks
-                .sort((a, b) => {
-                  const order = { high: 1, medium: 2, low: 3 };
-                  return order[a.priority] - order[b.priority];
-                })
-                .map((task, index) => (
-                  <div key={task.id}
-                    className="border-l-4 border-[#A0826D] bg-gradient-to-r from-[#F5EBE0] to-white p-4 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#A0826D] to-[#D4A574] text-white font-bold">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[#6B5444]">{task.title}</h4>
-                        <p className="text-sm text-[#8B7355] mt-1">{task.description}</p>
-                        <p className="text-sm text-[#A0826D] mt-2">
-                          ⏱ Durée: {task.estimated_time} min
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      <div className="space-y-4">
+        {(aiPlanning?.tasks || incompleteTasks.sort((a, b) => {
+          const order = { high: 1, medium: 2, low: 3 };
+          return order[a.priority] - order[b.priority];
+        })).map((task, index) => (
+          <div key={index}
+            className="border-l-4 border-[#A0826D] bg-gradient-to-r from-[#F5EBE0] to-white p-4 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#A0826D] to-[#D4A574] text-white font-bold flex-shrink-0">
+                {index + 1}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-semibold text-[#6B5444]">{task.title}</h4>
+                <p className="text-sm text-[#8B7355] mt-1">{task.description}</p>
+                <div className="flex gap-3 mt-2 text-sm text-[#A0826D]">
+                  {'estimatedTime' in task && (
+                    <span>⏱ {(task as any).estimatedTime} min</span>
+                  )}
+                  {'estimated_time' in task && task.estimated_time && (
+                    <span>⏱ {task.estimated_time} min</span>
+                  )}
+                  {'suggestedTime' in task && (
+                    <span>🕐 {(task as any).suggestedTime}</span>
+                  )}
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    task.priority === "high" ? "bg-[#D4A574] text-white"
+                    : task.priority === "medium" ? "bg-[#E8D5C4] text-[#8B7355]"
+                    : "bg-[#F5EBE0] text-[#A0826D]"
+                  }`}>
+                    {task.priority === "high" ? "Urgent"
+                     : task.priority === "medium" ? "Moyen" : "Faible"}
+                  </span>
+                </div>
+              </div>
             </div>
-            <button onClick={() => setShowPlanning(false)}
-              className="w-full mt-6 bg-gradient-to-r from-[#A0826D] to-[#D4A574] text-white px-4 py-2 rounded-lg">
-              Fermer
-            </button>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+
+      <div className="flex gap-3 mt-6">
+        <button onClick={() => { setShowPlanning(false); setAiPlanning(null); }}
+          className="flex-1 px-4 py-2 border border-[#E8D5C4] rounded-lg text-[#8B7355]">
+          Fermer
+        </button>
+        {aiPlanning && (
+          <button onClick={createTasksFromAI}
+            className="flex-1 bg-gradient-to-r from-[#A0826D] to-[#D4A574] text-white px-4 py-2 rounded-lg hover:shadow-lg flex items-center justify-center gap-2">
+            <Plus size={18} />
+            Ajouter ces tâches ({aiPlanning.tasks.length})
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

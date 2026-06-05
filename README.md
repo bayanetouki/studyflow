@@ -146,13 +146,13 @@ feature/*     Une branche par fonctionnalité
 
 Branches créées durant le développement :
 
-| Branche                       | Développeur | Contenu                                         |
-| ----------------------------- | ----------- | ----------------------------------------------- |
-| feature/auth-backend          | Personne 1  | App authentication, tests auth                  |
-| feature/tasks-backend         | Personne 1  | App tasks, tests tasks                          |
-| feature/collaboration-backend | Personne 2  | Apps collaboration et progress, tests           |
-| feature/frontend-integration  | Personne 2  | Connexion frontend-backend, tous les composants |
-| feature/cicd-pipeline         | Personne 3  | GitHub Actions, Docker                          |
+| Branche                       | Contenu                                         |
+| ----------------------------- | ----------------------------------------------- |
+| feature/auth-backend          | App authentication, tests auth                  |
+| feature/tasks-backend         | App tasks, tests tasks                          |
+| feature/collaboration-backend | Apps collaboration et progress, tests           |
+| feature/frontend-integration  | Connexion frontend-backend, tous les composants |
+| feature/cicd-pipeline         | GitHub Actions, Docker                          |
 
 Chaque branche a été mergée dans `develop` via une Pull Request avec revue de code, avant le merge final dans `main`.
 
@@ -250,8 +250,8 @@ studyflow/
 ## Équipe
 
 Membre
-Bayane TOUKI
-Oumenia CHOUHBAN
-Chaymae LAHMAM
+Bayane TOUKI |
+Oumenia CHOUHBAN | 
+Chaymae LAHMAMA | 
 
 Encadrant : Prof. Fahd Kalloubi

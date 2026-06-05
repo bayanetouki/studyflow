@@ -247,7 +247,7 @@ studyflow/
 
 ## Équipe
 
-###Membre 
+### Membre 
 
 Bayane TOUKI |
 Oumenia CHOUHBAN | 

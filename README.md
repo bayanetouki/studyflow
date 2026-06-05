@@ -2,8 +2,6 @@
 
 Application web full-stack de productivité étudiante — Module Génie Logiciel 2025-2026.
 
-![CI/CD](https://github.com/bayanetouki/studyflow/actions/workflows/ci-cd.yml/badge.svg)
-
 ## Présentation
 
 StudyFlow centralise tous les outils dont un étudiant a besoin : gestion des tâches avec planification quotidienne, hebdomadaire et mensuelle, timer Pomodoro avec plusieurs méthodes de travail, calendrier interactif, collaboration en équipe avec messagerie et tâches partagées, et suivi de progression avec graphiques. Toutes les données sont stockées en base de données PostgreSQL et sécurisées par authentification JWT.
